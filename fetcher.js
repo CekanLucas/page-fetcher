@@ -1,4 +1,4 @@
-// > node fetcher.js http://www.example.com/ ./index.html
+// node fetcher.js http://www.google.com/ ./index.html
 // Downloaded and saved 3261 bytes to ./index.html
 
 // Use the request library to make the HTTP request
@@ -17,53 +17,28 @@ const pageFetch = (URL, PATH) => {
   const append = (resource, filepath) => {
     fs.appendFile(filepath, `${resource}`, (err) => {
       if (err) throw err;
+      console.log('file created');
+      fs.stat(PATH, //try to call this after append
+        (err, stats)=>{
+          console.log(`Downloaded and saved ${stats.size} bytes to ${PATH}`);
+        });
     });
-  }
+  };
   
   request(URL, (error, request, body) => {
-    let fexist = 0;
     
-    fs.access(PATH, (err) => {
+    fs.access(PATH, err => {
       console.log(`${PATH} ${err ? 'does not exist' : 'exists'}`);
-      err ?
-         0 :  
-      
+      if (err) { // if file doesnt exist
+        append(`${body}\n`, PATH);
+      } else { // if file exist
         fs.unlink(PATH, (err) => {
           if (err) throw err;
           console.log(`${PATH} was deleted`);
-        });  
+          append(`${body}\n`, PATH);
+        });
+      }
     });
-
-    // if (fxist === 1)
-    // fs.unlink('path/file.txt', (err) => {
-    //   if (err) throw err;
-    //   console.log(`${PATH} was deleted`);
-    // });
-
-    append(`${body}\n`, PATH);
-
-    fs.stat(PATH, (err, stats)=>{
-      console.log(`Downloaded and saved ${stats.size} bytes to ${PATH}`);
-    })
-
   });
-
-}
+};
 pageFetch(url, path);
-
-
-
-// console.log(fileObj);
-
-// let string = '';
-// string = + fileObj.f_error ;
-// string = + `${fileObj.f_statusCode}` ;
-// string = + `${fileObj.f_body}` ;
-
-
-
-
-// console.log(fileObj)
-
-
-// console.log(fs)
