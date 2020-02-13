@@ -8,20 +8,62 @@
 // Do not use synchronous functions (see warning below)
 const fs = require('fs');
 const request = require('request');
-const fileObj = request('http://example.com', (error, response, body) => {
-  const f_error = ('error:', error); // Print the error if one occurred
-  const f_statusCode = ('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-  const f_body = ('body:', body); // Print the HTML for the Google homepage.
-  return {
-    f_error,
-    f_statusCode,
-    f_body 
+const args = process.argv.slice(2);
+const url = args[0];
+const path = args[1];
+
+const pageFetch = (URL, PATH) => {
+
+  const append = (resource, filepath) => {
+    fs.appendFile(filepath, `${resource}`, (err) => {
+      if (err) throw err;
+    });
   }
   
-});
+  request(URL, (error, request, body) => {
+    let fexist = 0;
+    
+    fs.access(PATH, (err) => {
+      console.log(`${PATH} ${err ? 'does not exist' : 'exists'}`);
+      err ?
+         0 :  
+      
+        fs.unlink(PATH, (err) => {
+          if (err) throw err;
+          console.log(`${PATH} was deleted`);
+        });  
+    });
+
+    // if (fxist === 1)
+    // fs.unlink('path/file.txt', (err) => {
+    //   if (err) throw err;
+    //   console.log(`${PATH} was deleted`);
+    // });
+
+    append(`${body}\n`, PATH);
+
+    fs.stat(PATH, (err, stats)=>{
+      console.log(`Downloaded and saved ${stats.size} bytes to ${PATH}`);
+    })
+
+  });
+
+}
+pageFetch(url, path);
 
 
-console.log(fileObj)
+
+// console.log(fileObj);
+
+// let string = '';
+// string = + fileObj.f_error ;
+// string = + `${fileObj.f_statusCode}` ;
+// string = + `${fileObj.f_body}` ;
+
+
+
+
+// console.log(fileObj)
 
 
 // console.log(fs)
